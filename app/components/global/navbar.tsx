@@ -1,8 +1,6 @@
 "use client";
 import React from "react";
 import logo from "../../../public/logo1.svg";
-import SignIn from "../auth/signin";
-import SignUp from "../auth/signup";
 
 export default function Navbar() {
   return (
