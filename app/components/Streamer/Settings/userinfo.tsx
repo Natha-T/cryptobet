@@ -13,7 +13,7 @@ export default function UserInfo() {
               <input
                 type="text"
                 placeholder="Username"
-                className="input input-bordered input-warning w-1/2"
+                className="input input-bordered rounded-sm input-warning w-1/2"
               />
             </div>
             <div className="flex justify-between">
@@ -22,7 +22,7 @@ export default function UserInfo() {
               <input
                 type="text"
                 placeholder="Bio"
-                className="input input-bordered input-warning w-1/2"
+                className="input input-bordered rounded-sm input-warning w-1/2"
               />
             </div>
             <div className="flex justify-between">
@@ -31,16 +31,16 @@ export default function UserInfo() {
               <input
                 type="text"
                 placeholder="Wallet Information"
-                className="input input-bordered input-warning w-1/2"
+                className="input input-bordered rounded-sm input-warning w-1/2"
               />
             </div>
             <div className="flex justify-between">
               {" "}
-              <h1>LChange Password </h1>
+              <h1>Change Password </h1>
               <input
                 type="text"
                 placeholder="Change Password"
-                className="input input-bordered input-warning w-1/2"
+                className="input input-bordered rounded-sm input-warning w-1/2"
               />
             </div>
           </div>

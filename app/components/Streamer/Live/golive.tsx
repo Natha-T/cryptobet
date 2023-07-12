@@ -11,7 +11,7 @@ export default function GoLive() {
           <input
             type="search"
             id="default-search"
-            className="block p-4  w-full text-xl font bold "
+            className="block p-4 rounded-sm  w-full text-xl font bold "
             placeholder="League of Legends Mid Season Invitational 2023"
             required
           />
