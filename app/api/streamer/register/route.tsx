@@ -1,12 +1,24 @@
 import postgres from "postgres";
 
-export async function POST(request: Request) {
-  const { username, email, password, profile_image, wallet_address } =
-    await request.json();
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    res.status(405).json({ error: "Method Not Allowed" });
+    return;
+  }
+
+  const {
+    username,
+    email,
+    password,
+    profile_image,
+    wallet_address,
+    can_create_bets,
+    bio,
+  } = await req.json();
 
   const sql = postgres(process.env.DATABASE_URL || "", {
     ssl: {
-      rejectUnauthorized: false, // This allows connecting to a database with a self-signed certificate
+      rejectUnauthorized: false,
     },
   });
 
@@ -16,23 +28,28 @@ export async function POST(request: Request) {
     password,
     profile_image,
     wallet_address,
+    can_create_bets,
+    bio, // Log the bio as well
   });
 
   try {
     await sql`
-      INSERT INTO streamer-profile (
-       username,
+      INSERT INTO streamer_profile (
+        username,
         email,
         password,
         profile_image,
         wallet_address,
-    
+        can_create_bets,
+        bio
       ) VALUES (
         ${username},
         ${email},
         ${password},
         ${profile_image},
-        ${wallet_address}
+        ${wallet_address},
+        ${can_create_bets},
+        ${bio} -- Insert the bio field
       );
     `;
 
@@ -41,9 +58,6 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("Error inserting data:", error);
-
-    return new Response(JSON.stringify({ message: "Error inserting data" }), {
-      status: 500,
-    });
+    res.status(500).json({ message: "Error inserting data" });
   }
 }

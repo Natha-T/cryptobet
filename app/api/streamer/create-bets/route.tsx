@@ -1,7 +1,12 @@
 import postgres from "postgres";
 
-export async function POST(request: Request) {
-  const { wallet_address, betting_amount, category } = await request.json();
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    res.status(405).json({ error: "Method Not Allowed" });
+    return;
+  }
+
+  const { wallet_address, category, bet_amount, streamer_id } = req.body;
 
   const sql = postgres(process.env.DATABASE_URL || "", {
     ssl: {
@@ -9,34 +14,35 @@ export async function POST(request: Request) {
     },
   });
 
-  console.log("Data received:", {
-    wallet_address,
-    betting_amount,
-    category,
-  });
-
   try {
-    await sql`
-      INSERT INTO bet (
-        wallet_address,
-    betting_amount,
-    category,
-    
-      ) VALUES (  
-        ${wallet_address},
-        ${betting_amount},
-        ${category}
-      );
-    `;
+    // Determine the team field to update based on the user's choice
+    // You can add the team selection logic here if needed
 
-    return new Response(
-      JSON.stringify({ message: "Data inserted successfully" })
-    );
+    // Insert the new bet into the `bet` table
+    await sql.begin(async (sql) => {
+      // Insert the new bet with the initial total betting pool set to zero
+      await sql`
+        INSERT INTO bet (
+          wallet_address,
+          category,
+          timestamp,
+          total_betting_pool,
+          bet_amount,
+          streamer_id
+        ) VALUES (
+          ${wallet_address},
+          ${category},
+          NOW(),
+          0, -- Initial total betting pool is zero
+          ${bet_amount},
+           ${streamer_id}
+        );
+      `;
+    });
+
+    res.status(200).json({ message: "Data inserted successfully" });
   } catch (error) {
     console.error("Error inserting data:", error);
-
-    return new Response(JSON.stringify({ message: "Error inserting data" }), {
-      status: 500,
-    });
+    res.status(500).json({ message: "Error inserting data" });
   }
 }

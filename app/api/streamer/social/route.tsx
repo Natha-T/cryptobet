@@ -1,52 +1,35 @@
 import postgres from "postgres";
 
-export async function PATCH(request: Request) {
-  const { id, username, email, password, profile_image, wallet_address } =
-    await request.json();
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    res.status(405).json({ error: "Method Not Allowed" });
+    return;
+  }
+
+  const { streamer_id, platform, link } = await req.body;
 
   const sql = postgres(process.env.DATABASE_URL || "", {
     ssl: {
-      rejectUnauthorized: false, // This allows connecting to a database with a self-signed certificate
+      rejectUnauthorized: false,
     },
   });
 
-  console.log("Data received:", {
-    id,
-    username,
-    email,
-    password,
-    profile_image,
-    wallet_address,
-  });
-
   try {
-    let query = sql`UPDATE "streamer-profile" SET`;
+    await sql`
+      INSERT INTO social_media_links (
+        streamer_id,
+        platform,
+        link
+      ) VALUES (
+        ${streamer_id},
+        ${platform},
+        ${link}
+      );
+    `;
 
-    // Build the SET clause dynamically based on the provided fields
-    if (username !== undefined) query.append(sql` username = ${username},`);
-    if (email !== undefined) query.append(sql` email = ${email},`);
-    if (password !== undefined) query.append(sql` password = ${password},`);
-    if (profile_image !== undefined)
-      query.append(sql` profile_image = ${profile_image},`);
-    if (wallet_address !== undefined)
-      query.append(sql` wallet_address = ${wallet_address},`);
-
-    // Remove the trailing comma from the SET clause
-    query = query.slice(0, -1);
-
-    // Add the WHERE clause to specify the profile to update using the id field
-    query.append(sql` WHERE id = ${id};`);
-
-    await query;
-
-    return new Response(
-      JSON.stringify({ message: "Profile updated successfully" })
-    );
+    res.status(200).json({ message: "Social media link added successfully" });
   } catch (error) {
-    console.error("Error updating profile:", error);
-
-    return new Response(JSON.stringify({ message: "Error updating profile" }), {
-      status: 500,
-    });
+    console.error("Error adding social media link:", error);
+    res.status(500).json({ message: "Error adding social media link" });
   }
 }
