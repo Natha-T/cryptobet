@@ -6,8 +6,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { wallet_address, category, bet_amount, streamer_id } = req.body;
-
+  const { wallet_address, category, bet_amount, user_id } = req.body;
   const sql = postgres(process.env.DATABASE_URL || "", {
     ssl: {
       rejectUnauthorized: false, // This allows connecting to a database with a self-signed certificate
@@ -23,19 +22,21 @@ export default async function handler(req, res) {
       // Insert the new bet with the initial total betting pool set to zero
       await sql`
         INSERT INTO bet (
+          user_id,
           wallet_address,
           category,
           timestamp,
           total_betting_pool,
           bet_amount,
-          streamer_id
+   
         ) VALUES (
+                ${user_id},
           ${wallet_address},
           ${category},
           NOW(),
           0, -- Initial total betting pool is zero
-          ${bet_amount},
-           ${streamer_id}
+          ${bet_amount}
+    
         );
       `;
     });
